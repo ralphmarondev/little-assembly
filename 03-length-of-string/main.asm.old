@@ -1,0 +1,56 @@
+; calculating the length of the string and printing it
+section .data
+    msg db 'Enter a string: ', 0
+    len_msg equ $ -msg
+    input_buffer db 100
+
+section .bss
+    user_input resb 100
+    input_length resb 1
+
+section .text
+    global _start
+
+_start:
+    ; print the message asking for input
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, msg
+    mov edx, len_msg
+    int 80h
+
+    ; read user input
+    mov eax, 3
+    mov ebx, 0
+    mov ecx, user_input
+    mov edx, 100
+    int 80h
+
+    ; calculate the length of the user input string
+    mov ecx, user_input
+    xor eax, eax
+    xor ebx, ebx                ; clear ebx to ensure correct calculation
+
+loop_calc_length:
+    cmp byte [ecx + ebx], 0     ; accessing elements of user_input buffer sequentially
+    je end_calc_length
+    inc ebx
+    jmp loop_calc_length
+
+end_calc_length:
+    mov [input_length], bl 
+
+; print the length of the user input
+mov al, [input_length]
+add al, '0'
+mov [user_input], al
+mov eax, 4
+mov ebx, 1
+mov ecx, user_input
+mov edx, 1
+int 80h
+
+; exit the program
+mov eax, 1
+xor ebx, ebx
+int 80h
